@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] UIManager uiManager = null;
     [SerializeField] GameObject AllEnemies = null;
     [SerializeField] internal GameObject AudioObject = null;
+
     internal bool GamePaused = false;
     internal bool Cheater = false;
     internal bool CheatInvulnerable = false;

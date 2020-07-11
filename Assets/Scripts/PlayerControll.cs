@@ -2,22 +2,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.WSA.Input;
 
 public class PlayerControll : MonoBehaviour
 {
     [SerializeField] GameObject CameraHolder = null;
+    [SerializeField] GameObject VrRig = null;
     [SerializeField] float Speed = 15;
-    float camera_minimumY = -10;
-    float camera_maximumY = 50;
-    float player_rotationX = 0;
-    float camera_rotationY = 0;
-    float camera_rotationX = 0;
+    [SerializeField] XRController LeftHand = null;
+    [SerializeField] XRController RightHand = null;
     Animator animator = null;
+    float player_rotationX = 0;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         Cursor.lockState = CursorLockMode.Locked;
+        transform.rotation = Quaternion.Euler(0, CameraHolder.transform.eulerAngles.y, 0);
     }
 
     private void Update()
@@ -28,6 +31,16 @@ public class PlayerControll : MonoBehaviour
         }
         MovePlayer();
         MoveCamera();
+        //GetMenuClick();
+    }
+
+    private void GetMenuClick()
+    {
+        if (LeftHand.inputDevice.TryGetFeatureValue(CommonUsages.menuButton, out bool presses))
+        {
+            Debug.Log("click");
+            //GameManager.Instance.OnGamePaused();
+        }
     }
 
     void MovePlayer()
@@ -44,25 +57,12 @@ public class PlayerControll : MonoBehaviour
         }
         transform.position += transform.forward * Speed * inputY * Time.deltaTime;
         transform.position += transform.right * Speed * inputX * Time.deltaTime;
-        player_rotationX += Input.GetAxis("Mouse X") * Settings.MouseSensitivity;
-        transform.localEulerAngles = new Vector3(0, player_rotationX, 0);
-
+        transform.rotation = Quaternion.Euler(0, CameraHolder.transform.eulerAngles.y, 0);
     }
 
     void MoveCamera()
     {
-        if (Settings.Invert)
-        {
-            camera_rotationY -= Input.GetAxis("Mouse Y") * Settings.MouseSensitivity;
-        }
-        else
-        {
-            camera_rotationY += Input.GetAxis("Mouse Y") * Settings.MouseSensitivity;
-        }
-        camera_rotationX += Input.GetAxis("Mouse X") * Settings.MouseSensitivity;
-        camera_rotationY = Mathf.Clamp(camera_rotationY, camera_minimumY, camera_maximumY);
-        CameraHolder.transform.localEulerAngles = new Vector3(-camera_rotationY, camera_rotationX, 0);
-        CameraHolder.transform.position = transform.position;
+        VrRig.transform.position = transform.position;
     }
 
     void OnCollisionEnter(Collision collision)
